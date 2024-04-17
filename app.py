@@ -51,10 +51,10 @@ else:
     col1,col2= st.columns(2)
     with col1:
         st.header("Export the chat without media")
-        url = "https://github.com/nil0711/miniproject"
+        url = "https://github.com/ravinder2643/WhatsApp_Chat_Analyzer"
         st.markdown(f"[Link to source code]({url})", unsafe_allow_html=True)
     with col2:    
-        local_image_path = "./img.jpeg"
+        local_image_path = "./img.webp"
         width = 300
         st.image(local_image_path, caption="Export the chat without media",width=width)
 
