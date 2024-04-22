@@ -64,7 +64,7 @@ else:
 
 while not proceed:
     time.sleep(1)
-tabs = st.tabs(["Data Visualization", "Sentiment Analysis", "Chat With AI"])
+tabs = st.tabs(["Data Visualization", "Sentiment Analysis", "Recommendations on Interest"])
 with tabs[0]:
     st.header("Data Visualization")
     st.header((f"{selected_user} Analysis"))
@@ -176,22 +176,49 @@ with tabs[0]:
     with col_common2:
         st.bar_chart(top_words_df, x="words", y="frequency", use_container_width=True)
 
-    st.header(("Most Common Emojis"))
+    # st.header(("Most Common Emojis"))
+    # col_emoji1, col_emoji2 = st.columns(2)
+    # top_emojis_df = top_emoji(selected_user, df)
+
+    # if top_emojis_df.empty:
+    #     st.header("Most Common Emojis")
+    #     st.write("No Emoji analysis possible.")
+    # else:
+    #     st.header("Most Common Emojis")
+    #     col_emoji1, col_emoji2 = st.columns(2)
+
+    #     with col_emoji1:
+    #         st.dataframe(top_emojis_df)
+
+    #     with col_emoji2:
+    #         st.bar_chart(top_emojis_df, x="emoji", y="frequency", use_container_width=True)
+            
+            
+    # Assuming top_emojis_df is your DataFrame containing emoji frequencies
+
+# Fetch and display the top emojis DataFrame
+top_emojis_df = top_emoji(selected_user, df)
+
+if top_emojis_df.empty:
+    st.header("Most Common Emojis")
+    st.write("No Emoji analysis possible.")
+else:
+    st.header("Most Common Emojis")
     col_emoji1, col_emoji2 = st.columns(2)
-    top_emojis_df = top_emoji(selected_user, df)
 
-    if top_emojis_df.empty:
-        st.header("Most Common Emojis")
-        st.write("No Emoji analysis possible.")
-    else:
-        st.header("Most Common Emojis")
-        col_emoji1, col_emoji2 = st.columns(2)
+    with col_emoji1:
+        st.dataframe(top_emojis_df)
 
-        with col_emoji1:
-            st.dataframe(top_emojis_df)
+    with col_emoji2:
+        # Create a pie chart
+        fig, ax = plt.subplots()
+        ax.pie(top_emojis_df['frequency'], labels=top_emojis_df['emoji'], autopct='%1.1f%%', startangle=90)
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-        with col_emoji2:
-            st.bar_chart(top_emojis_df, x="emoji", y="frequency", use_container_width=True)
+        # Display the pie chart using Streamlit
+        st.pyplot(fig)
+      
+       
 
 with tabs[1]:
     st.header("Sentiment Analysis")
@@ -309,58 +336,58 @@ with tabs[1]:
     
     
     
-    st.title('Sentiment vs Emotion_nltk Correlation Plot')
+    # st.title('Sentiment vs Emotion_nltk Correlation Plot')
 
-    fig, ax = plt.subplots(figsize=(8, 6))
-    sns.scatterplot(x='sentiment', y='emotion_nltk', data=df, color='blue', label='Emotion_nltk')
-    sns.scatterplot(x='sentiment', y='sentiment', data=df, color='red', label='Sentiment')
+    # fig, ax = plt.subplots(figsize=(8, 6))
+    # sns.scatterplot(x='sentiment', y='emotion_nltk', data=df, color='blue', label='Emotion_nltk')
+    # sns.scatterplot(x='sentiment', y='sentiment', data=df, color='red', label='Sentiment')
 
-    z = np.polyfit(df['sentiment'], df['emotion_nltk'], 1)
-    p = np.poly1d(z)
-    beta_1, beta_0 = z
-    theta = math.degrees(math.atan(beta_1))
-    ax.plot(df['sentiment'], p(df['sentiment']), color='black', label='Correlation Line')
+    # z = np.polyfit(df['sentiment'], df['emotion_nltk'], 1)
+    # p = np.poly1d(z)
+    # beta_1, beta_0 = z
+    # theta = math.degrees(math.atan(beta_1))
+    # ax.plot(df['sentiment'], p(df['sentiment']), color='black', label='Correlation Line')
 
-    correlation_coefficient = df['sentiment'].corr(df['emotion_nltk'])
+    # correlation_coefficient = df['sentiment'].corr(df['emotion_nltk'])
 
     
 
-    ax.set_xlabel('Sentiment')
-    ax.set_ylabel('Emotion_nltk')
-    ax.set_title('Correlation between Sentiment and Emotion_nltk')
+    # ax.set_xlabel('Sentiment')
+    # ax.set_ylabel('Emotion_nltk')
+    # ax.set_title('Correlation between Sentiment and Emotion_nltk')
 
-    ax.legend()
+    # ax.legend()
 
-    st.subheader(f"The Correlation Coefficient is {round(correlation_coefficient, 3)}")
-    st.subheader(f"Beta 0 (Intercept): {round(beta_0, 3)}")
-    st.subheader(f"Beta 1 (Slope): {round(beta_1, 3)}")
-    st.subheader(f"Angle of the slope (theta): {round(theta, 3)} degrees")
+    # st.subheader(f"The Correlation Coefficient is {round(correlation_coefficient, 3)}")
+    # st.subheader(f"Beta 0 (Intercept): {round(beta_0, 3)}")
+    # st.subheader(f"Beta 1 (Slope): {round(beta_1, 3)}")
+    # st.subheader(f"Angle of the slope (theta): {round(theta, 3)} degrees")
 
-    st.pyplot(fig)
+    # st.pyplot(fig)
 
 
         
         
     
-    sub1, sub2 = st.columns(2)
-    with sub1:
+    # sub1, sub2 = st.columns(2)
+    # with sub1:
         
-        st.subheader('Subjectivity Percentage')
-        st.bar_chart(subjectivity_percentage(selected_user, df))    
-    with sub2:
-        data= subjectivity_trend(selected_user,df)
+    #     st.subheader('Subjectivity Percentage')
+    #     st.bar_chart(subjectivity_percentage(selected_user, df))    
+    # with sub2:
+    #     data= subjectivity_trend(selected_user,df)
         
 
 
-        st.subheader('Subjectivity Trend Over Months:')
+    #     st.subheader('Subjectivity Trend Over Months:')
         
-        st.plotly_chart(px.line(data, x='only_date', y=data.columns[1:], labels={'value': 'Subjectivity'}))
+    #     st.plotly_chart(px.line(data, x='only_date', y=data.columns[1:], labels={'value': 'Subjectivity'}))
     
     
 
-    st.header("Topic Modelling")
-    topic_keywords= chat_keywords(selected_user,df)
-    display_topic_keywords(topic_keywords)
+    # st.header("Topic Modelling")
+    # topic_keywords= chat_keywords(selected_user,df)
+    # display_topic_keywords(topic_keywords)
     
 
             
@@ -370,10 +397,10 @@ with tabs[1]:
 
 
 
-with tabs[2]:
-    st.header("Chatbot using Gemini-Pro 💁")
+# with tabs[2]:
+#     st.header("Chatbot using Gemini-Pro 💁")
 
-    user_question = st.text_input("Ask any Question regading the app or analysis")
+#     user_question = st.text_input("Ask any Question regading the app or analysis")
 
-    if user_question:
-        user_input(user_question)
+#     if user_question:
+#         user_input(user_question)
