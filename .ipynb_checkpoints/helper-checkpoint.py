@@ -11,7 +11,6 @@ from urlextract import URLExtract
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 import pandas as pd
-import requests
 import emoji
 from langchain.vectorstores import FAISS
 from langchain.chains.question_answering import load_qa_chain
@@ -310,24 +309,25 @@ def chat_keywords(user_type,df ):
         topic_keywords[topic_name] = top_keywords
     return topic_keywords
 
-
 def user_input(user_question):
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
-    
-    # Load the FAISS index with dangerous deserialization allowed
+    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001",google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
-    
+
+    new_db = FAISS.load_local("faiss_index", embeddings)
     docs = new_db.similarity_search(user_question)
+
     chain = get_conversational_chain()
 
+    
     response = chain(
-        {"input_documents": docs, "question": user_question},
-        return_only_outputs=True
-    )
+        {"input_documents":docs, "question": user_question}
+        , return_only_outputs=True)
 
+    print(response)
     st.write("Reply: ", response["output_text"])
-
+    
 def get_conversational_chain():
+
     prompt_template = """
     Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
     provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
@@ -337,73 +337,10 @@ def get_conversational_chain():
     Answer:
     """
 
-    model = ChatGoogleGenerativeAI(
-        model="gemini-pro",
-        temperature=0.3,
-        google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w"
-    )
+    model = ChatGoogleGenerativeAI(model="gemini-pro",
+                             temperature=0.3,google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
 
-    prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+    prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
     return chain
-
-
-
-def get_news(api_key1, keyword):
-    try:
-        url = f'https://newsapi.org/v2/everything?q={keyword}&apiKey={api_key1}'
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        data = response.json()
-        articles = data.get('articles', [])  # Use .get() to safely access the 'articles' key
-        news_list = []
-        for article in articles:
-            title = article.get('title', '')
-            description = article.get('description', '')
-            link = article.get('url', '')
-            news_list.append({'title': title, 'description': description, 'link': link})
-        return news_list
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return None
-
-
-
-
-
-# def user_input(user_question):
-#     embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001",google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
-#     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
-
-#     new_db = FAISS.load_local("faiss_index", embeddings)
-#     docs = new_db.similarity_search(user_question)
-
-#     chain = get_conversational_chain()
-
-    
-#     response = chain(
-#         {"input_documents":docs, "question": user_question}
-#         , return_only_outputs=True)
-
-#     print(response)
-#     st.write("Reply: ", response["output_text"])
-    
-# def get_conversational_chain():
-
-#     prompt_template = """
-#     Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
-#     provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
-#     Context:\n {context}?\n
-#     Question: \n{question}\n
-
-#     Answer:
-#     """
-
-#     model = ChatGoogleGenerativeAI(model="gemini-pro",
-#                              temperature=0.3,google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
-
-#     prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
-#     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
-
-#     return chain

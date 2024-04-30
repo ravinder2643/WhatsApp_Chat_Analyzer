@@ -114,8 +114,8 @@ def preprocess_text_file(uploaded_file):
     # Sentiment Analysis
     df['sentiment'] = df['message'].apply(get_sentiment_polarity)
 
-    df['sentiment_category'] = pd.cut(df['sentiment'], bins=[-1, -0.1, 0.1, 0.5, 1], 
-    labels=['negative', 'neutral', 'mixed', 'positive'])
+    df['sentiment_category'] = pd.cut(df['sentiment'], bins=[-1, -0.1,  0.5, 1], 
+    labels=['negative', 'neutral', 'positive'])
     
     
     df['emotion_nltk'] = df['message'].apply(get_emotion_nltk)

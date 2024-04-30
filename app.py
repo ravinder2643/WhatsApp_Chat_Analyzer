@@ -2,6 +2,8 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
+import requests
+
 
 import pandas as pd
 import numpy as np
@@ -14,6 +16,7 @@ import matplotlib.dates as mdates
 import google.generativeai as genai 
 import seaborn as sns
 
+from helper import get_news
 from preprocessor import preprocess_text_file
 from helper import stats, most_busy_user, get_wordcloud, top_com_words, fetch_message, top_emoji, time_line, daily_timeline, user_input, week_activity, month_activity, heat_map_data,monthly_senti_change,daily_senti_change,monthly_emotion_change,daily_emotion_change,compount_sentiment_monthly,compount_emotion_monthly,subjectivity_percentage,subjectivity_trend,chat_keywords
 
@@ -197,27 +200,27 @@ with tabs[0]:
     # Assuming top_emojis_df is your DataFrame containing emoji frequencies
 
 # Fetch and display the top emojis DataFrame
-top_emojis_df = top_emoji(selected_user, df)
+    top_emojis_df = top_emoji(selected_user, df)
 
-if top_emojis_df.empty:
-    st.header("Most Common Emojis")
-    st.write("No Emoji analysis possible.")
-else:
-    st.header("Most Common Emojis")
-    col_emoji1, col_emoji2 = st.columns(2)
+    if top_emojis_df.empty:
+        st.header("Most Common Emojis")
+        st.write("No Emoji analysis possible.")
+    else:
+        st.header("Most Common Emojis")
+        col_emoji1, col_emoji2 = st.columns(2)
 
-    with col_emoji1:
-        st.dataframe(top_emojis_df)
+        with col_emoji1:
+            st.dataframe(top_emojis_df)
 
-    with col_emoji2:
-        # Create a pie chart
-        fig, ax = plt.subplots()
-        ax.pie(top_emojis_df['frequency'], labels=top_emojis_df['emoji'], autopct='%1.1f%%', startangle=90)
-        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+        with col_emoji2:
+            # Create a pie chart
+            fig, ax = plt.subplots()
+            ax.pie(top_emojis_df['frequency'], labels=top_emojis_df['emoji'], autopct='%1.1f%%', startangle=90)
+            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-        # Display the pie chart using Streamlit
-        st.pyplot(fig)
-      
+            # Display the pie chart using Streamlit
+            st.pyplot(fig)
+        
        
 
 with tabs[1]:
@@ -243,7 +246,7 @@ with tabs[1]:
 
         st.subheader('Sentiment Trend Over Months:')
         
-        fig = px.line(monthly_trend.reset_index(), x='date', y=['positive', 'mixed', 'neutral', 'negative'],
+        fig = px.line(monthly_trend.reset_index(), x='date', y=['positive', 'neutral', 'negative'],
                     labels={'value': 'Sentiment Proportion', 'date': 'Month'},
                     line_shape='linear', render_mode='svg')
 
@@ -260,7 +263,7 @@ with tabs[1]:
         daily_trend = pd.merge(all_sentiments_df, daily_trend, how='outer', left_index=True, right_index=True)
 
         daily_trend = daily_trend.fillna(0)
-        fig = px.line(daily_trend, x='only_date', y=['positive', 'mixed', 'neutral', 'negative'],
+        fig = px.line(daily_trend, x='only_date', y=['positive', 'neutral', 'negative'],
               labels={'value': 'Sentiment Proportion', 'only_date': 'Date'},
               line_shape='linear', render_mode='svg'  )
 
@@ -336,65 +339,82 @@ with tabs[1]:
     
     
     
-    # st.title('Sentiment vs Emotion_nltk Correlation Plot')
+    st.title('Sentiment vs Emotion_nltk Correlation Plot')
 
-    # fig, ax = plt.subplots(figsize=(8, 6))
-    # sns.scatterplot(x='sentiment', y='emotion_nltk', data=df, color='blue', label='Emotion_nltk')
-    # sns.scatterplot(x='sentiment', y='sentiment', data=df, color='red', label='Sentiment')
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.scatterplot(x='sentiment', y='emotion_nltk', data=df, color='blue', label='Emotion_nltk')
+    sns.scatterplot(x='sentiment', y='sentiment', data=df, color='red', label='Sentiment')
 
-    # z = np.polyfit(df['sentiment'], df['emotion_nltk'], 1)
-    # p = np.poly1d(z)
-    # beta_1, beta_0 = z
-    # theta = math.degrees(math.atan(beta_1))
-    # ax.plot(df['sentiment'], p(df['sentiment']), color='black', label='Correlation Line')
+    z = np.polyfit(df['sentiment'], df['emotion_nltk'], 1)
+    p = np.poly1d(z)
+    beta_1, beta_0 = z
+    theta = math.degrees(math.atan(beta_1))
+    ax.plot(df['sentiment'], p(df['sentiment']), color='black', label='Correlation Line')
 
-    # correlation_coefficient = df['sentiment'].corr(df['emotion_nltk'])
+    correlation_coefficient = df['sentiment'].corr(df['emotion_nltk'])
 
     
 
-    # ax.set_xlabel('Sentiment')
-    # ax.set_ylabel('Emotion_nltk')
-    # ax.set_title('Correlation between Sentiment and Emotion_nltk')
+    ax.set_xlabel('Sentiment')
+    ax.set_ylabel('Emotion_nltk')
+    ax.set_title('Correlation between Sentiment and Emotion_nltk')
 
-    # ax.legend()
+    ax.legend()
 
-    # st.subheader(f"The Correlation Coefficient is {round(correlation_coefficient, 3)}")
-    # st.subheader(f"Beta 0 (Intercept): {round(beta_0, 3)}")
-    # st.subheader(f"Beta 1 (Slope): {round(beta_1, 3)}")
-    # st.subheader(f"Angle of the slope (theta): {round(theta, 3)} degrees")
+    st.subheader(f"The Correlation Coefficient is {round(correlation_coefficient, 3)}")
+    st.subheader(f"Beta 0 (Intercept): {round(beta_0, 3)}")
+    st.subheader(f"Beta 1 (Slope): {round(beta_1, 3)}")
+    st.subheader(f"Angle of the slope (theta): {round(theta, 3)} degrees")
 
-    # st.pyplot(fig)
+    st.pyplot(fig)
 
 
         
         
     
-    # sub1, sub2 = st.columns(2)
-    # with sub1:
+    sub1, sub2 = st.columns(2)
+    with sub1:
         
-    #     st.subheader('Subjectivity Percentage')
-    #     st.bar_chart(subjectivity_percentage(selected_user, df))    
-    # with sub2:
-    #     data= subjectivity_trend(selected_user,df)
+        st.subheader('Subjectivity Percentage')
+        st.bar_chart(subjectivity_percentage(selected_user, df))    
+    with sub2:
+        data= subjectivity_trend(selected_user,df)
         
 
 
-    #     st.subheader('Subjectivity Trend Over Months:')
+        st.subheader('Subjectivity Trend Over Months:')
         
-    #     st.plotly_chart(px.line(data, x='only_date', y=data.columns[1:], labels={'value': 'Subjectivity'}))
+        st.plotly_chart(px.line(data, x='only_date', y=data.columns[1:], labels={'value': 'Subjectivity'}))
     
     
 
-    # st.header("Topic Modelling")
-    # topic_keywords= chat_keywords(selected_user,df)
-    # display_topic_keywords(topic_keywords)
+    st.header("Topic Modelling")
+    st.header("User's interests")
+    topic_keywords= chat_keywords(selected_user,df)
+    display_topic_keywords(topic_keywords)
     
 
             
 
+with tabs[2]:
+   
+    st.header("Recommadations of Events based on interest")
+    keyword = st.text_input("Give any interest and get the latest related information")
+    api_key1 = "2cd44d590df74759b11e706e7c3ab2ba"
 
-
-
+    news = get_news(api_key1, keyword)
+    
+    # Display news articles title description and links
+    if news:
+        st.header(f"News related to '{keyword}':")
+        for index, article in enumerate(news[:10], start=1):
+            st.subheader(f"Article {index}:")
+            st.write(f"Title: {article['title']}")
+            st.write(f"Description: {article['description']}")
+            st.write(f"Link: {article['link']}")
+            st.write("*" * 150)
+    else:
+        st.write(f"No news found related to '{keyword}'.")
 
 
 # with tabs[2]:
