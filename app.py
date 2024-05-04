@@ -67,7 +67,7 @@ else:
 
 while not proceed:
     time.sleep(1)
-tabs = st.tabs(["Data Visualization", "Sentiment Analysis", "Recommendations on Interest"])
+tabs = st.tabs(["Data Visualization", "Sentiment Analysis", "Recommendations on Interest", "ChatBot"])
 with tabs[0]:
     st.header("Data Visualization")
     st.header((f"{selected_user} Analysis"))
@@ -104,7 +104,7 @@ with tabs[0]:
 
     st.header(("Activity Map"))
     col_activity1, col_activity2 = st.columns(2)
-
+    
     with col_activity1:
         st.subheader(("Most Busy Months"))
         month_data = month_activity(selected_user, df)
@@ -215,7 +215,7 @@ with tabs[0]:
         with col_emoji2:
             # Create a pie chart
             fig, ax = plt.subplots()
-            ax.pie(top_emojis_df['frequency'], labels=top_emojis_df['emoji'], autopct='%1.1f%%', startangle=90)
+            ax.pie(top_emojis_df['frequency'],  autopct='%1.1f%%', startangle=90)
             ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
             # Display the pie chart using Streamlit
@@ -417,10 +417,10 @@ with tabs[2]:
         st.write(f"No news found related to '{keyword}'.")
 
 
-# with tabs[2]:
-#     st.header("Chatbot using Gemini-Pro 💁")
+with tabs[3]:
+    st.header("Chatbot using Gemini-Pro 💁")
 
-#     user_question = st.text_input("Ask any Question regading the app or analysis")
+    user_question = st.text_input("Ask any Question regading the app or analysis")
 
-#     if user_question:
-#         user_input(user_question)
+    if user_question:
+        user_input(user_question)
