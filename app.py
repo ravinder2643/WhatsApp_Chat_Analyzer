@@ -32,7 +32,72 @@ def display_topic_keywords(topic_keywords):
         
         columns[i % 5].markdown(", ".join(keywords[:5]))
 proceed = False
+
 st.set_page_config(page_title="Chat Analyzer", page_icon=":speech_balloon:", layout="wide")
+# CSS styling
+st.title("Whatsapp Chat Analyzer")
+css = """
+<style>
+   .stApp {
+    background-image: url("https://images.unsplash.com/photo-1547499417-61a435d27cb3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8MTh8fHxlbnwwfHx8fHw%3D"); /* Specify the path to your background image */
+    background-size: cover; /* Cover the entire background */
+    background-repeat: no-repeat; /* Prevent background from repeating */
+    font-family: Arial, sans-serif; /* Specify the font family */
+    color: #333; /* Specify the text color */
+}
+
+h1 {
+    color: #0066cc;
+}
+
+h2 {
+    color: #0066cc; /* Subheader text color */
+}
+#file_uploader {
+    margin-top: 20px;
+}
+
+.selectbox-container {
+    margin-top: 20px;
+}
+
+.header {
+    margin-top: 40px;
+}
+
+.footer {
+    margin-top: 40px;
+}
+
+.image-container {
+    text-align: center;
+    margin-top: 20px;
+}
+ .stTab {
+        color: #333; /* Tab text color */
+    }
+
+    .stTab:hover {
+        color: #0066cc; /* Tab text color on hover */
+    }
+
+    .stTab.active {
+        background-color: #0066cc; /* Background color for active tab */
+        color: #fff; /* Text color for active tab */
+    }
+
+    .stButton {
+        background-color: #0066cc; /* Button background color */
+        color: #fff; /* Button text color */
+        border-radius: 5px; /* Button border radius */
+    }
+
+    .stButton:hover {
+        background-color: #004080; /* Button background color on hover */
+    }
+</style>
+"""
+st.markdown(css, unsafe_allow_html=True)
 uploaded_file = st.file_uploader("Choose a text file", type=["txt"])
 show=True
 if uploaded_file is not None:
@@ -61,9 +126,6 @@ else:
         width = 300
         st.image(local_image_path, caption="Export the chat without media",width=width)
 
-    
-    
-   
 
 while not proceed:
     time.sleep(1)
@@ -387,18 +449,35 @@ with tabs[1]:
         st.plotly_chart(px.line(data, x='only_date', y=data.columns[1:], labels={'value': 'Subjectivity'}))
     
     
+    
 
     st.header("Topic Modelling")
     st.header("User's interests")
     topic_keywords= chat_keywords(selected_user,df)
     display_topic_keywords(topic_keywords)
-    
+    st.markdown("""
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 2px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Display the table
+st.markdown("**Top 5 Topic Keywords:**")
+
 
             
 
 with tabs[2]:
    
-    st.header("Recommadations of Events based on interest")
+    st.title("Recommadations of Events based on interest")
     keyword = st.text_input("Give any interest and get the latest related information")
     api_key1 = "2cd44d590df74759b11e706e7c3ab2ba"
 
@@ -408,11 +487,11 @@ with tabs[2]:
     if news:
         st.header(f"News related to '{keyword}':")
         for index, article in enumerate(news[:10], start=1):
-            st.subheader(f"Article {index}:")
-            st.write(f"Title: {article['title']}")
-            st.write(f"Description: {article['description']}")
-            st.write(f"Link: {article['link']}")
-            st.write("*" * 150)
+            st.header(f"Article {index}:")
+            st.subheader(f"Title: {article['title']}")
+            st.subheader(f"Description: {article['description']}")
+            st.subheader(f"Link: {article['link']}")
+            st.subheader("*" * 150)
     else:
         st.write(f"No news found related to '{keyword}'.")
 
