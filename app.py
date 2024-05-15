@@ -3,7 +3,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.express as px
 import requests
-
+import random
 
 import pandas as pd
 import numpy as np
@@ -18,7 +18,7 @@ import seaborn as sns
 
 from helper import get_news
 from preprocessor import preprocess_text_file
-from helper import stats, most_busy_user, get_wordcloud, top_com_words, fetch_message, top_emoji, time_line, daily_timeline, user_input, week_activity, month_activity, heat_map_data,monthly_senti_change,daily_senti_change,monthly_emotion_change,daily_emotion_change,compount_sentiment_monthly,compount_emotion_monthly,subjectivity_percentage,subjectivity_trend,chat_keywords
+from helper import stats, most_busy_user, get_wordcloud, top_com_words, fetch_message, top_emoji, time_line, daily_timeline, user_question, week_activity, month_activity, heat_map_data,monthly_senti_change,daily_senti_change,monthly_emotion_change,daily_emotion_change,compount_sentiment_monthly,compount_emotion_monthly,subjectivity_percentage,subjectivity_trend,chat_keywords
 
 
 
@@ -156,12 +156,12 @@ with tabs[0]:
 
     with col_timeline1:
         st.subheader(("Monthly Graph"))
-        fig_monthly = px.line(time_line(selected_user, df), x='time', y='message', template='plotly_dark')
+        fig_monthly = px.line(time_line(selected_user, df), x='Time', y='Message',color_discrete_map={'message': '#FF5733'} ,template='plotly_dark')
         st.plotly_chart(fig_monthly)
 
     with col_timeline2:
         st.subheader(("Daily Graph"))
-        fig_daily = px.line(daily_timeline(selected_user, df), x='only_date', y='message', template='plotly_dark')
+        fig_daily = px.line(daily_timeline(selected_user, df), x='Only_date', y='Message',color_discrete_map={'message': '#33FF57'}, template='plotly_dark')
         st.plotly_chart(fig_daily)
 
     st.header(("Activity Map"))
@@ -179,8 +179,28 @@ with tabs[0]:
             ],
             ordered=True,
         )
+        colors = {
+    "January": "#FF5733",
+    "February": "#33FF57",
+    "March": "#3366FF",
+    "April": "#FF33FF",
+    "May": "#FF5733",
+    "June": "#33FF57",
+    "July": "#3366FF",
+    "August": "#FF5733",
+    "September": "#33FF57",
+    "October": "#3366FF",
+    "November": "#FF5733",
+    "December": "#33FF57"
+}
 
-        st.bar_chart(month_data, x="month", y="message", use_container_width=True)
+# Map the colors to the month column
+        month_data['color'] = month_data['month'].map(colors)
+
+# Create the bar chart with customized colors
+        st.bar_chart(month_data, x="Month", y="Message", color="color", )
+
+        
 
     with col_activity2:
         st.subheader(("Most Busy Day"))
@@ -191,16 +211,31 @@ with tabs[0]:
             categories=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
             ordered=True,
         )
-
-        st.bar_chart(week_data, x="dayname", y="message", use_container_width=True)
-
+        colors = {
+    "Monday": "#FF5733",
+    "Tuesday": "#33FF57",
+    "Wednesday": "#3366FF",
+    "Thursday": "#FF33FF",
+    "Friday": "#FF5733",
+    "Saturday": "#33FF57",
+    "Sunday": "#3366FF"
+        }
+        
+# Map the colors to the dayname column
+        week_data['color'] = week_data['dayname'].map(colors)
+# Create the bar chart with customized colors
+        st.bar_chart(week_data, x="Dayname", y="Message", color='color',)
+        
     if selected_user == 'Overall':
         st.header(("Most Busy Users"))
         most_busy_users, busy_user_df = most_busy_user(df)
         col_busy1, col_busy2 = st.columns(2)
 
         with col_busy2:
-            st.bar_chart(most_busy_users, use_container_width=True)
+            plt.xlabel('User')
+            plt.ylabel('Message Count')
+            plt.title('Most Busy Users')
+            st.bar_chart(most_busy_users, color='#00FFFF',use_container_width=True)
 
         with col_busy1:
             st.dataframe(busy_user_df)
@@ -231,15 +266,20 @@ with tabs[0]:
     ax_wc.imshow(df_wc)
     st.pyplot(fig_wc)
 
+    top_words_df = top_com_words(selected_user, df)
+    top_words_df =top_words_df.head(10)
+    
     st.header(("Most Common Words"))
     col_common1, col_common2 = st.columns(2)
-    top_words_df = top_com_words(selected_user, df)
 
+    
+    
     with col_common1:
         st.dataframe(top_words_df)
 
     with col_common2:
-        st.bar_chart(top_words_df, x="words", y="frequency", use_container_width=True)
+        #colors: ['#FF5733', '#33FF57', '#3366FF', '#FF33FF', '#FF5733', '#33FF57', '#3366FF', '#FF5733', '#33FF57', '#3366FF', '#FF5733', '#33FF57']
+        st.bar_chart(top_words_df, x="words", y="frequency", color="#FF5733", use_container_width=True)
 
     # st.header(("Most Common Emojis"))
     # col_emoji1, col_emoji2 = st.columns(2)
@@ -276,6 +316,7 @@ with tabs[0]:
 
         with col_emoji2:
             # Create a pie chart
+            st.title("Emoji Analysis ")
             fig, ax = plt.subplots()
             ax.pie(top_emojis_df['frequency'],  autopct='%1.1f%%', startangle=90)
             ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
@@ -435,12 +476,13 @@ with tabs[1]:
         
     
     sub1, sub2 = st.columns(2)
+    
     with sub1:
         
         st.subheader('Subjectivity Percentage')
-        st.bar_chart(subjectivity_percentage(selected_user, df))    
+        st.bar_chart(subjectivity_percentage(selected_user, df),color = '#FF5733')    
     with sub2:
-        data= subjectivity_trend(selected_user,df)
+        data= subjectivity_trend(selected_user,df )
         
 
 
@@ -477,8 +519,8 @@ st.markdown("**Top 5 Topic Keywords:**")
 
 with tabs[2]:
    
-    st.title("Recommadations of Events based on interest")
-    keyword = st.text_input("Give any interest and get the latest related information")
+    st.title("Recommendations of Events based on interest")
+    keyword = st.text_input("Give any interest and get the latest related event information")
     api_key1 = "2cd44d590df74759b11e706e7c3ab2ba"
 
     news = get_news(api_key1, keyword)
@@ -499,7 +541,7 @@ with tabs[2]:
 with tabs[3]:
     st.header("Chatbot using Gemini-Pro 💁")
 
-    user_question = st.text_input("Ask any Question regading the app or analysis")
+    question = st.text_input("Ask any Question regading the app or analysis")
 
-    if user_question:
-        user_input(user_question)
+    if question:
+        user_question(question) # type: ignore

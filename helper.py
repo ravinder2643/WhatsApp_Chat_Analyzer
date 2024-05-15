@@ -311,44 +311,79 @@ def chat_keywords(user_type,df ):
     return topic_keywords
 
 
-def user_input(user_question):
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
+# def user_input(user_question):
+#     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
     
-    # Load the FAISS index with dangerous deserialization allowed
-    new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+#     # Load the FAISS index with dangerous deserialization allowed
+#     new_db = FAISS.load_local("index.pkl", embeddings, allow_dangerous_deserialization=True)
     
-    docs = new_db.similarity_search(user_question)
-    chain = get_conversational_chain()
+#     docs = new_db.similarity_search(user_question)
+#     chain = get_conversational_chain()
 
-    response = chain(
-        {"input_documents": docs, "question": user_question},
-        return_only_outputs=True
-    )
+#     response = chain(
+#         {"input_documents": docs, "question": user_question},
+#         return_only_outputs=True
+#     )
 
-    st.write("Reply: ", response["output_text"])
+#     st.write("Reply: ", response["output_text"])
 
-def get_conversational_chain():
-    prompt_template = """
-    Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
-    provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
-    Context:\n {context}?\n
-    Question: \n{question}\n
+# def get_conversational_chain():
+#     prompt_template = """
+#     Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
+#     provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
+#     Context:\n {context}?\n
+#     Question: \n{question}\n
 
-    Answer:
-    """
+#     Answer:
+#     """
 
-    model = ChatGoogleGenerativeAI(
-        model="gemini-pro",
-        temperature=0.3,
-        google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w"
-    )
+#     model = ChatGoogleGenerativeAI(
+#         model="gemini-pro",
+#         temperature=0.3,
+#         google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w"
+#     )
 
-    prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
-    chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
+#     prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
+#     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
 
-    return chain
+#     return chain
 
+## newwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 
+# Configure Google API key
+genai.configure(api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
+
+def user_question(question):
+    # Load Gemini Pro model and initialize chat
+    model = genai.GenerativeModel("gemini-pro") 
+    chat = model.start_chat(history=[])
+    
+    # Function to get Gemini response
+    def get_gemini_response(question):
+        response = chat.send_message(question, stream=True)
+        return response
+
+    # Get Gemini response for the provided question
+    response = get_gemini_response(question)
+    
+    # Display user input and Gemini response
+    st.subheader("The Response is")
+    for chunk in response:
+        st.markdown(f'<div style="color: white;">{chunk.text}</div>', unsafe_allow_html=True)
+        
+    # Store chat history in session state
+    if 'chat_history' not in st.session_state:
+        st.session_state['chat_history'] = []
+    st.session_state['chat_history'].append(("You", question))
+    for chunk in response:
+        st.session_state['chat_history'].append(("Bot", chunk.text))
+    
+    # Display chat history
+    st.subheader("The Chat History is")
+    for role, text in st.session_state['chat_history']:
+        st.markdown(f'<div style="color: blue;">{role}: {text}</div>', unsafe_allow_html=True)
+
+        
 
 def get_news(api_key1, keyword):
     try:
@@ -372,38 +407,4 @@ def get_news(api_key1, keyword):
 
 
 
-def user_input(user_question):
-    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001",google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
-    new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
 
-    new_db = FAISS.load_local("faiss_index", embeddings)
-    docs = new_db.similarity_search(user_question)
-
-    chain = get_conversational_chain()
-
-    
-    response = chain(
-        {"input_documents":docs, "question": user_question}
-        , return_only_outputs=True)
-
-    print(response)
-    st.write("Reply: ", response["output_text"])
-    
-def get_conversational_chain():
-
-    prompt_template = """
-    Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
-    provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
-    Context:\n {context}?\n
-    Question: \n{question}\n
-
-    Answer:
-    """
-
-    model = ChatGoogleGenerativeAI(model="gemini-pro",
-                             temperature=0.3,google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
-
-    prompt = PromptTemplate(template = prompt_template, input_variables = ["context", "question"])
-    chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
-
-    return chain
