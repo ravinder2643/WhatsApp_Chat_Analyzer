@@ -35,11 +35,17 @@ proceed = False
 
 st.set_page_config(page_title="Chat Analyzer", page_icon=":speech_balloon:", layout="wide")
 # CSS styling
-st.title("Whatsapp Chat Analyzer")
+st.title("WhatsApp Chat Analyzer")
+#html_temp = """
+# <div style="background-color:Aqua;padding:10px">
+# <h2 style="color:white;text-align:center;">WhatsApp Chat Analyzer App </h2>
+# </div>
+# """
+# st.markdown(html_temp,unsafe_allow_html=True)
 css = """
 <style>
    .stApp {
-    background-image: url("https://images.unsplash.com/photo-1547499417-61a435d27cb3?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8MTh8fHxlbnwwfHx8fHw%3D"); /* Specify the path to your background image */
+    background-image: url("https://imgs.search.brave.com/Geivlj2O2L0RfwualLhqS5eROvl4vXoRTMmt9jbaWEU/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMudW5zcGxhc2gu/Y29tL3Bob3RvLTE1/NDEzMjA1MTgxOTAt/ZGY3N2MzZmY3Y2E1/P3E9ODAmdz0xMDAw/JmF1dG89Zm9ybWF0/JmZpdD1jcm9wJml4/bGliPXJiLTQuMC4z/Jml4aWQ9TTN3eE1q/QTNmREI4TUh4elpX/RnlZMmg4TW54OGNH/bHVheVV5TUdGdVpD/VXlNSGxsYkd4dmQz/eGxibnd3Zkh3d2ZI/eDhNQT09.jpeg"); /* Specify the path to your background image */
     background-size: cover; /* Cover the entire background */
     background-repeat: no-repeat; /* Prevent background from repeating */
     font-family: Arial, sans-serif; /* Specify the font family */
@@ -156,12 +162,12 @@ with tabs[0]:
 
     with col_timeline1:
         st.subheader(("Monthly Graph"))
-        fig_monthly = px.line(time_line(selected_user, df), x='Time', y='Message',color_discrete_map={'message': '#FF5733'} ,template='plotly_dark')
+        fig_monthly = px.line(time_line(selected_user, df), x='time', y='message',color_discrete_map={'message': '#FF5733'} ,template='plotly_dark')
         st.plotly_chart(fig_monthly)
 
     with col_timeline2:
         st.subheader(("Daily Graph"))
-        fig_daily = px.line(daily_timeline(selected_user, df), x='Only_date', y='Message',color_discrete_map={'message': '#33FF57'}, template='plotly_dark')
+        fig_daily = px.line(daily_timeline(selected_user, df), x='only_date', y='message',color_discrete_map={'message': '#33FF57'}, template='plotly_dark')
         st.plotly_chart(fig_daily)
 
     st.header(("Activity Map"))
@@ -198,7 +204,7 @@ with tabs[0]:
         month_data['color'] = month_data['month'].map(colors)
 
 # Create the bar chart with customized colors
-        st.bar_chart(month_data, x="Month", y="Message", color="color", )
+        st.bar_chart(month_data, x="month", y="message", color="color", )
 
         
 
@@ -224,7 +230,7 @@ with tabs[0]:
 # Map the colors to the dayname column
         week_data['color'] = week_data['dayname'].map(colors)
 # Create the bar chart with customized colors
-        st.bar_chart(week_data, x="Dayname", y="Message", color='color',)
+        st.bar_chart(week_data, x="dayname", y="message", color='color',)
         
     if selected_user == 'Overall':
         st.header(("Most Busy Users"))
@@ -281,25 +287,7 @@ with tabs[0]:
         #colors: ['#FF5733', '#33FF57', '#3366FF', '#FF33FF', '#FF5733', '#33FF57', '#3366FF', '#FF5733', '#33FF57', '#3366FF', '#FF5733', '#33FF57']
         st.bar_chart(top_words_df, x="words", y="frequency", color="#FF5733", use_container_width=True)
 
-    # st.header(("Most Common Emojis"))
-    # col_emoji1, col_emoji2 = st.columns(2)
-    # top_emojis_df = top_emoji(selected_user, df)
-
-    # if top_emojis_df.empty:
-    #     st.header("Most Common Emojis")
-    #     st.write("No Emoji analysis possible.")
-    # else:
-    #     st.header("Most Common Emojis")
-    #     col_emoji1, col_emoji2 = st.columns(2)
-
-    #     with col_emoji1:
-    #         st.dataframe(top_emojis_df)
-
-    #     with col_emoji2:
-    #         st.bar_chart(top_emojis_df, x="emoji", y="frequency", use_container_width=True)
-            
-            
-    # Assuming top_emojis_df is your DataFrame containing emoji frequencies
+    
 
 # Fetch and display the top emojis DataFrame
     top_emojis_df = top_emoji(selected_user, df)
@@ -511,8 +499,7 @@ with tabs[1]:
     </style>
     """, unsafe_allow_html=True)
 
-# Display the table
-st.markdown("**Top 5 Topic Keywords:**")
+
 
 
             

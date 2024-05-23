@@ -289,7 +289,7 @@ def chat_keywords(user_type,df ):
     X_tfidf = tfidf_transformer.fit_transform(X)
 
     n_topics = 5  
-    lda = LatentDirichletAllocation(n_components=n_topics, random_state=42)
+    lda = LatentDirichletAllocation(n_components=n_topics, random_state=12)
     lda.fit(X_tfidf)
 
     feature_names = vectorizer.get_feature_names_out()
@@ -305,50 +305,17 @@ def chat_keywords(user_type,df ):
             prompt=input_text,
             max_output_tokens=50
         )
-        topic_name = response.result.strip()
+        if response.result is not None:
+            topic_name = response.result.strip()
+        else:
+            print("Warning: response.result is None")
+            topic_name = "Unnamed Topic"
 
         topic_keywords[topic_name] = top_keywords
+
     return topic_keywords
 
 
-# def user_input(user_question):
-#     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
-    
-#     # Load the FAISS index with dangerous deserialization allowed
-#     new_db = FAISS.load_local("index.pkl", embeddings, allow_dangerous_deserialization=True)
-    
-#     docs = new_db.similarity_search(user_question)
-#     chain = get_conversational_chain()
-
-#     response = chain(
-#         {"input_documents": docs, "question": user_question},
-#         return_only_outputs=True
-#     )
-
-#     st.write("Reply: ", response["output_text"])
-
-# def get_conversational_chain():
-#     prompt_template = """
-#     Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
-#     provided context just say, "answer is not available in the context", don't provide the wrong answer\n\n
-#     Context:\n {context}?\n
-#     Question: \n{question}\n
-
-#     Answer:
-#     """
-
-#     model = ChatGoogleGenerativeAI(
-#         model="gemini-pro",
-#         temperature=0.3,
-#         google_api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w"
-#     )
-
-#     prompt = PromptTemplate(template=prompt_template, input_variables=["context", "question"])
-#     chain = load_qa_chain(model, chain_type="stuff", prompt=prompt)
-
-#     return chain
-
-## newwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
 
 # Configure Google API key
 genai.configure(api_key="AIzaSyBSf9YAbtiT3PBEgDsuKJlr--pb9WZj1_w")
