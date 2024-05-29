@@ -16,9 +16,9 @@ import matplotlib.dates as mdates
 import google.generativeai as genai 
 import seaborn as sns
 
-from helper import get_news
-from preprocessor import preprocess_text_file
-from helper import stats, most_busy_user, get_wordcloud, top_com_words, fetch_message, top_emoji, time_line, daily_timeline, user_question, week_activity, month_activity, heat_map_data,monthly_senti_change,daily_senti_change,monthly_emotion_change,daily_emotion_change,compount_sentiment_monthly,compount_emotion_monthly,subjectivity_percentage,subjectivity_trend,chat_keywords
+from helper import get_news # type: ignore
+from preprocessor import preprocess_text_file # type: ignore
+from helper import stats, most_busy_user, get_wordcloud, top_com_words, fetch_message, top_emoji, time_line, daily_timeline, user_question, week_activity, month_activity, heat_map_data,monthly_senti_change,daily_senti_change,monthly_emotion_change,daily_emotion_change,compount_sentiment_monthly,compount_emotion_monthly,subjectivity_percentage,subjectivity_trend,chat_keywords # type: ignore
 
 
 
@@ -161,13 +161,18 @@ with tabs[0]:
     col_timeline1, col_timeline2 = st.columns(2)
 
     with col_timeline1:
-        st.subheader(("Monthly Graph"))
-        fig_monthly = px.line(time_line(selected_user, df), x='time', y='message',color_discrete_map={'message': '#FF5733'} ,template='plotly_dark')
+        st.subheader("Monthly Graph")
+        monthly_data = time_line(selected_user, df)
+        fig_monthly = px.line(monthly_data, x='time', y='message', template='plotly_dark')
+        fig_monthly.update_traces(line=dict(color='#FF5733'))  # Set line color to red
         st.plotly_chart(fig_monthly)
 
+# Generate the line graph with green color for the daily graph
     with col_timeline2:
-        st.subheader(("Daily Graph"))
-        fig_daily = px.line(daily_timeline(selected_user, df), x='only_date', y='message',color_discrete_map={'message': '#33FF57'}, template='plotly_dark')
+        st.subheader("Daily Graph")
+        daily_data = daily_timeline(selected_user, df)
+        fig_daily = px.line(daily_data, x='only_date', y='message', template='plotly_dark')
+        fig_daily.update_traces(line=dict(color='#33FF57'))  # Set line color to green
         st.plotly_chart(fig_daily)
 
     st.header(("Activity Map"))
@@ -468,7 +473,7 @@ with tabs[1]:
     with sub1:
         
         st.subheader('Subjectivity Percentage')
-        st.bar_chart(subjectivity_percentage(selected_user, df),color = '#FF5733')    
+        st.bar_chart(subjectivity_percentage(selected_user, df),color = '#FF33FF')    
     with sub2:
         data= subjectivity_trend(selected_user,df )
         

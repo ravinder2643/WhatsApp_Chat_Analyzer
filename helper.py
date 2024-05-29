@@ -289,7 +289,7 @@ def chat_keywords(user_type,df ):
     X_tfidf = tfidf_transformer.fit_transform(X)
 
     n_topics = 5  
-    lda = LatentDirichletAllocation(n_components=n_topics, random_state=12)
+    lda = LatentDirichletAllocation(n_components=n_topics, random_state=2)
     lda.fit(X_tfidf)
 
     feature_names = vectorizer.get_feature_names_out()
